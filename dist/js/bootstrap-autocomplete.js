@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap Autocomplete v0.0.1 (https://iqbalfn.github.io/bootstrap-autocomplete/)
+  * Bootstrap Autocomplete v0.0.2 (https://iqbalfn.github.io/bootstrap-autocomplete/)
   * Copyright 2019 Iqbal Fauzi
   * Licensed under MIT (https://github.com/iqbalfn/bootstrap-autocomplete/blob/master/LICENSE)
   */
@@ -223,7 +223,7 @@
    */
 
   var NAME = 'autocomplete';
-  var VERSION = '0.0.1';
+  var VERSION = '0.0.2';
   var DATA_KEY = 'bs.autocomplete';
   var EVENT_KEY = "." + DATA_KEY;
   var DATA_API_KEY = '.data-api';
@@ -454,7 +454,7 @@
 
         _this3._showSpinner();
 
-        var url = _this3._config.filter.replace('#QUERY#', _this3._query);
+        var url = _this3._config.filter.replace(/%23/g, '#').replace('#QUERY#', _this3._query);
 
         $.get(url, function (res) {
           _this3._hideSpinner();

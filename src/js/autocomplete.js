@@ -1,6 +1,6 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap Autocomplete (v0.0.1): autocomplete.js
+ * Bootstrap Autocomplete (v0.0.2): autocomplete.js
  * Licensed under MIT (https://github.com/iqbalfn/bootstrap-autocomplete/blob/master/LICENSE)
  * --------------------------------------------------------------------------
  */
@@ -15,7 +15,7 @@ import Util from './util'
  */
 
 const NAME               = 'autocomplete'
-const VERSION            = '0.0.1'
+const VERSION            = '0.0.2'
 const DATA_KEY           = 'bs.autocomplete'
 const EVENT_KEY          = `.${DATA_KEY}`
 const DATA_API_KEY       = '.data-api'
@@ -275,7 +275,9 @@ class Autocomplete {
                 return
             this._showSpinner()
 
-            let url = this._config.filter.replace('#QUERY#', this._query)
+            let url = this._config.filter
+                .replace(/%23/g, '#')
+                .replace('#QUERY#', this._query)
             $.get(url, res => {
                 this._hideSpinner()
                 if(this._config.preProcess)
