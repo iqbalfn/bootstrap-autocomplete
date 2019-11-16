@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap Autocomplete v0.0.2 (https://iqbalfn.github.io/bootstrap-autocomplete/)
+  * Bootstrap Autocomplete v0.1.0 (https://iqbalfn.github.io/bootstrap-autocomplete/)
   * Copyright 2019 Iqbal Fauzi
   * Licensed under MIT (https://github.com/iqbalfn/bootstrap-autocomplete/blob/master/LICENSE)
   */
@@ -223,7 +223,7 @@
    */
 
   var NAME = 'autocomplete';
-  var VERSION = '0.0.2';
+  var VERSION = '0.1.0';
   var DATA_KEY = 'bs.autocomplete';
   var EVENT_KEY = "." + DATA_KEY;
   var DATA_API_KEY = '.data-api';
@@ -234,6 +234,7 @@
     filter: null,
     filterDelay: 300,
     filterMinChars: 1,
+    filterRelation: null,
     maxResult: 10,
     preProcess: null
   };
@@ -243,6 +244,7 @@
     filter: '(null|string)',
     filterDelay: 'number',
     filterMinChars: 'number',
+    filterRelation: '(null|object)',
     maxResult: 'number',
     preProcess: '(null|function)'
   };
@@ -279,13 +281,15 @@
       this._query = '';
       this._preventClose = false;
       this._timer = null;
+      this._relations = null;
 
       if (element.hasAttribute('list')) {
         this._config.list = '#' + element.getAttribute('list');
         element.removeAttribute('list');
       }
 
-      if (!this._config.list && !this._config.prefetch && !this._config.filter) throw new TypeError("No data source provided");
+      if (!this._config.list && !this._config.prefetch && !this._config.filter) throw new TypeError('No data source provided');
+      if (this._config.filterRelation) this._handleRelations();
       element.setAttribute('autocomplete', 'off');
 
       this._makeDropdown();
@@ -456,6 +460,18 @@
 
         var url = _this3._config.filter.replace(/%23/g, '#').replace('#QUERY#', _this3._query);
 
+        if (_this3._relations) {
+          var sep = url.includes('?') ? '&' : '?';
+
+          for (var k in _this3._relations) {
+            var el = _this3._relations[k];
+            var val = $(el).val();
+            if (!val) continue;
+            url += "" + sep + k + "=" + val;
+            sep = '&';
+          }
+        }
+
         $.get(url, function (res) {
           _this3._hideSpinner();
 
@@ -533,6 +549,27 @@
       if (next) next.classList.add('active');
     };
 
+    _proto._getConfig = function _getConfig(config) {
+      config = _objectSpread({}, Default, config);
+      Util.typeCheckConfig(NAME, config, DefaultType);
+      return config;
+    };
+
+    _proto._handleRelations = function _handleRelations() {
+      var _this5 = this;
+
+      this._relations = [];
+
+      for (var name in this._config.filterRelation) {
+        var selector = this._config.filterRelation[name];
+        this._relations[name] = $(selector).get(0);
+        $(this._relations[name]).change(function (e) {
+          _this5._element.value = '';
+          _this5._items = [];
+        });
+      }
+    };
+
     _proto._hideDropdown = function _hideDropdown() {
       this._isShown = false;
 
@@ -541,12 +578,6 @@
 
     _proto._hideSpinner = function _hideSpinner() {
       this._spinner.style.display = 'none';
-    };
-
-    _proto._getConfig = function _getConfig(config) {
-      config = _objectSpread({}, Default, config);
-      Util.typeCheckConfig(NAME, config, DefaultType);
-      return config;
     };
 
     _proto._makeDropdown = function _makeDropdown() {
@@ -568,18 +599,18 @@
     };
 
     _proto._renderItem = function _renderItem(items) {
-      var _this5 = this;
+      var _this6 = this;
 
       items.forEach(function (i) {
-        if (_this5._dropdown.children.length >= _this5._config.maxResult) return;
-        $('<a class="dropdown-item" href="#"></a>').text(i).appendTo(_this5._dropdown).on(Event.CLICK_DATA_API, function (e) {
-          _this5._preventClose = true;
-          _this5._element.value = e.target.innerText;
+        if (_this6._dropdown.children.length >= _this6._config.maxResult) return;
+        $('<a class="dropdown-item" href="#"></a>').text(i).appendTo(_this6._dropdown).on(Event.CLICK_DATA_API, function (e) {
+          _this6._preventClose = true;
+          _this6._element.value = e.target.innerText;
 
-          _this5.hide();
+          _this6.hide();
 
           e.preventDefault();
-          _this5._preventClose = false;
+          _this6._preventClose = false;
         });
       });
     };

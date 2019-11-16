@@ -1,6 +1,6 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap Autocomplete (v0.0.2): autocomplete.js
+ * Bootstrap Autocomplete (v0.1.0): autocomplete.js
  * Licensed under MIT (https://github.com/iqbalfn/bootstrap-autocomplete/blob/master/LICENSE)
  * --------------------------------------------------------------------------
  */
@@ -15,7 +15,7 @@ import Util from './util'
  */
 
 const NAME               = 'autocomplete'
-const VERSION            = '0.0.2'
+const VERSION            = '0.1.0'
 const DATA_KEY           = 'bs.autocomplete'
 const EVENT_KEY          = `.${DATA_KEY}`
 const DATA_API_KEY       = '.data-api'
@@ -29,6 +29,7 @@ const Default = {
     filter          : null,
     filterDelay     : 300,
     filterMinChars  : 1,
+    filterRelation  : null,
 
     maxResult       : 10,
 
@@ -37,11 +38,13 @@ const Default = {
 
 const DefaultType = {
     list            : '(null|string|element)',
-    prefetch        : '(null|string)',
-    filter          : '(null|string)',
 
+    prefetch        : '(null|string)',
+
+    filter          : '(null|string)',
     filterDelay     : 'number',
     filterMinChars  : 'number',
+    filterRelation  : '(null|object)',
 
     maxResult       : 'number',
 
@@ -90,6 +93,7 @@ class Autocomplete {
         this._query     = ''
         this._preventClose = false
         this._timer     = null
+        this._relations = null
 
         if(element.hasAttribute('list')){
             this._config.list = '#' + element.getAttribute('list')
@@ -97,7 +101,10 @@ class Autocomplete {
         }
 
         if(!this._config.list && !this._config.prefetch && !this._config.filter)
-            throw new TypeError(`No data source provided`)
+            throw new TypeError('No data source provided')
+
+        if(this._config.filterRelation)
+            this._handleRelations()
 
         element.setAttribute('autocomplete', 'off')
 
@@ -278,6 +285,21 @@ class Autocomplete {
             let url = this._config.filter
                 .replace(/%23/g, '#')
                 .replace('#QUERY#', this._query)
+
+            if(this._relations){
+                let sep = url.includes('?') ? '&' : '?'
+
+                for(let k in this._relations){
+                    let el = this._relations[k]
+                    let val= $(el).val()
+                    if(!val)
+                        continue;
+
+                    url+= `${sep}${k}=${val}`
+                    sep = '&'
+                }
+            }
+
             $.get(url, res => {
                 this._hideSpinner()
                 if(this._config.preProcess)
@@ -366,15 +388,6 @@ class Autocomplete {
             next.classList.add('active')
     }
 
-    _hideDropdown(){
-        this._isShown = false
-        this._dropdown.classList.remove('show')
-    }
-
-    _hideSpinner(){
-        this._spinner.style.display = 'none'
-    }
-
     _getConfig(config) {
         config = {
             ...Default,
@@ -382,6 +395,27 @@ class Autocomplete {
         }
         Util.typeCheckConfig(NAME, config, DefaultType)
         return config
+    }
+
+    _handleRelations(){
+        this._relations = []
+        for(let name in this._config.filterRelation){
+            let selector = this._config.filterRelation[name];
+            this._relations[name] = $(selector).get(0)
+            $(this._relations[name]).change(e => {
+                this._element.value = ''
+                this._items = []
+            });
+        }
+    }
+
+    _hideDropdown(){
+        this._isShown = false
+        this._dropdown.classList.remove('show')
+    }
+
+    _hideSpinner(){
+        this._spinner.style.display = 'none'
     }
 
     _makeDropdown(){

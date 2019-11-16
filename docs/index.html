@@ -14,6 +14,7 @@
         .example{ border: 4px solid #eee; margin-bottom:30px;}
         .example-preview{ padding: 1.5rem; }
         .example > pre{ border-top: 4px solid #eee;margin:0; }
+        .no-html{ display: none; }
         .highlihgt-grid .row + .row{ margin-top: 1rem;}
         .highlihgt-grid [class^="col-"]{
             padding-top: .75rem;
@@ -105,7 +106,7 @@
                                     <div class="example-preview source-code" data-hl="html">
                                         <div class="form-group">
                                             <label for="input-prefetch">Timezone</label>
-                                            <input type="text" class="form-control" placeholder="Timezone" id="input-prefetch" data-prefetch="http://m1m2dm1nu1s3rv3rd3m0.co.nf/timezone/?group=Asia">
+                                            <input type="text" class="form-control" placeholder="Timezone" id="input-prefetch" data-prefetch="https://iqbalfn.com/timezone/?group=Asia">
                                         </div>
 
                                         <script>
@@ -126,7 +127,7 @@
                                     <div class="example-preview source-code" data-hl="html">
                                         <div class="form-group">
                                             <label for="input-url">Timezone</label>
-                                            <input type="text" class="form-control" placeholder="Timezone" id="input-url" data-filter="http://m1m2dm1nu1s3rv3rd3m0.co.nf/timezone/?q=#QUERY#">
+                                            <input type="text" class="form-control" placeholder="Timezone" id="input-url" data-filter="https://iqbalfn.com/timezone/?q=#QUERY#">
                                         </div>
 
                                         <script>
@@ -138,6 +139,138 @@
                                 </div>
                             </article>
                         </section>
+
+                        <section>
+                            <h3>Ajax Source ( With Relation )</h3>
+                            <article>
+                                <p>Below autocomplete take source from ajax on user typing, and with additional query string based on other input.</p>
+                                <div class="example">
+                                    <div class="example-preview source-code" data-hl="html">
+                                        <div class="form-group">
+                                            <label for="input-continent">Continent</label>
+                                            <select class="custom-select" id="input-continent">
+                                                <option value="Africa">Africa</option>
+                                                <option value="America">America</option>
+                                                <option value="Asia">Asia</option>
+                                                <option value="Atlantic">Atlantic</option>
+                                                <option value="Australia">Australia</option>
+                                                <option value="Europe">Europe</option>
+                                                <option value="Indian">Indian</option>
+                                                <option value="Pacific">Pacific</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="input-url2">Timezone</label>
+                                            <input type="text"
+                                                class="form-control"
+                                                placeholder="Timezone"
+                                                id="input-url2"
+                                                data-filter-relation="{&quot;group&quot;:&quot;#input-continent&quot;}"
+                                                data-filter="https://iqbalfn.com/timezone/?q=#QUERY#">
+                                        </div>
+
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', e => {
+                                                $('#input-url2').autocomplete()
+                                            }, false);
+                                        </script>
+                                    </div>
+                                </div>
+                            </article>
+                        </section>
+                    </article>
+                </section>
+
+                <section>
+                    <h2>Usage</h2>
+
+                    <article>
+                        <section>
+                            <h3>Via JavaScript</h3>
+                            <article>
+                                <div class="example">
+                                    <div class="example-preview source-code no-html" data-hl="js">
+                                        $('#input-url').autocomplete(options)
+                                    </div>
+                                </div>
+                            </article>
+                        </section>
+                    </article>
+                </section>
+
+                <section>
+                    <h3>Server</h3>
+                    <article>
+                        <p>Unless you provide <code>preProcess</code> options, the server should response with ajax as below:.</p>
+                        <div class="example-preview source-code no-html" data-hl="json">
+                            [
+                                "Asia/Jakarta",
+                                "Asia/Hongkong"
+                            ]
+                        </div>
+                    </article>
+                </section>
+
+                <section>
+                    <h3>Options</h3>
+                    <article>
+                        <p>Options can be passed via data attributes or JavaScript. For data attributes, append the option name to <code>data-</code>, as in <code>data-filter=""</code>.</p>
+
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr><th>Name</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>list</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>The id of datalist element to take the option from.</td>
+                                </tr>
+                                <tr>
+                                    <td>prefetch</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Target URL to fetch for all enable option on the first init.</td>
+                                </tr>
+                                <tr>
+                                    <td>filter</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Target URL to fetch the filtered result, the string <code>#QUERY#</code> will be replaced with user input.</td>
+                                </tr>
+                                <tr>
+                                    <td>filterDelay</td>
+                                    <td>int</td>
+                                    <td>300</td>
+                                    <td>Total microsecond to wait since last user input before triggering ajax request.</td>
+                                </tr>
+                                <tr>
+                                    <td>filterMinChars</td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>Total character user input to trigger ajax request.</td>
+                                </tr>
+                                <tr>
+                                    <td>filterRelation</td>
+                                    <td>object</td>
+                                    <td>null</td>
+                                    <td>Related element to add on request query in form of <code>key => selector</code>. For example: <code>{what: "#input-continent"}</code>.</td>
+                                </tr>
+                                <tr>
+                                    <td>maxResult</td>
+                                    <td>int</td>
+                                    <td>10</td>
+                                    <td>Total result to show on dropdown list.</td>
+                                </tr>
+                                <tr>
+                                    <td>preProcess</td>
+                                    <td>function</td>
+                                    <td>null</td>
+                                    <td>Process the ajax response to suit the response spec.</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </article>
                 </section>
 
@@ -149,6 +282,8 @@
     <script src="js/source.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="js/timezone.js"></script>
+    <script src="js/mock.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="js/bootstrap-autocomplete.js"></script>
