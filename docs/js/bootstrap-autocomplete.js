@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap Autocomplete v0.0.2 (https://iqbalfn.github.io/bootstrap-autocomplete/)
+  * Bootstrap Autocomplete v0.1.1 (https://iqbalfn.github.io/bootstrap-autocomplete/)
   * Copyright 2019 Iqbal Fauzi
   * Licensed under MIT (https://github.com/iqbalfn/bootstrap-autocomplete/blob/master/LICENSE)
   */
@@ -7,7 +7,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('jquery')) :
   typeof define === 'function' && define.amd ? define(['exports', 'jquery'], factory) :
   (global = global || self, factory(global['bootstrap-autocomplete'] = {}, global.jQuery));
-}(this, function (exports, $) { 'use strict';
+}(this, (function (exports, $) { 'use strict';
 
   $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
 
@@ -565,6 +565,8 @@
         this._relations[name] = $(selector).get(0);
         $(this._relations[name]).change(function (e) {
           _this5._element.value = '';
+          $(_this5._element).change(); // we need to trigger this manually
+
           _this5._items = [];
         });
       }
@@ -681,5 +683,5 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
 //# sourceMappingURL=bootstrap-autocomplete.js.map

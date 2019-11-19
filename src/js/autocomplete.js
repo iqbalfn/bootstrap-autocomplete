@@ -404,6 +404,7 @@ class Autocomplete {
             this._relations[name] = $(selector).get(0)
             $(this._relations[name]).change(e => {
                 this._element.value = ''
+                $(this._element).change() // we need to trigger this manually
                 this._items = []
             });
         }
