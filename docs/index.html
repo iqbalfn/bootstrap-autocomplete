@@ -67,7 +67,7 @@
                         <section>
                             <h3>List Source</h3>
                             <article>
-                                <p>Below autocomplete take source from datalist.</p>
+                                <p>List of autocomplete suggestion can be taken from <code>datalist</code> element ase below:</p>
                                 <div class="example">
                                     <div class="example-preview source-code" data-hl="html">
                                         <div class="form-group">
@@ -101,7 +101,8 @@
                         <section>
                             <h3>Ajax Prefect</h3>
                             <article>
-                                <p>The data below taken from prefect of some URL.</p>
+                                <p>The suggestions text can also be prefect during initialize time. This method will call ajax request once in the render time. This method is better if suggestions text is
+                                not too many</p>
                                 <div class="example">
                                     <div class="example-preview source-code" data-hl="html">
                                         <div class="form-group">
@@ -122,7 +123,7 @@
                         <section>
                             <h3>Ajax Source</h3>
                             <article>
-                                <p>Below autocomplete take source from ajax on user typing.</p>
+                                <p>Suggestion text taken during user typing. This method is good for datalist that is too much for single request.</p>
                                 <div class="example">
                                     <div class="example-preview source-code" data-hl="html">
                                         <div class="form-group">
@@ -143,7 +144,7 @@
                         <section>
                             <h3>Ajax Source ( With Relation )</h3>
                             <article>
-                                <p>Below autocomplete take source from ajax on user typing, and with additional query string based on other input.</p>
+                                <p>Add additional query string to ajax request during user typing by adding option <code>filterRelation</code></p>
                                 <div class="example">
                                     <div class="example-preview source-code" data-hl="html">
                                         <div class="form-group">
@@ -172,6 +173,72 @@
                                         <script>
                                             document.addEventListener('DOMContentLoaded', e => {
                                                 $('#input-url2').autocomplete()
+                                            }, false);
+                                        </script>
+                                    </div>
+                                </div>
+                            </article>
+                        </section>
+
+                        <section>
+                            <h3>On Render Item</h3>
+                            <article>
+                                <p>Right after a suggestion item element already rendered and is already on view, event `itemrender.bs.autocomplete` will be called that get two parameters, element, and rendered item.</code></p>
+                                <div class="example">
+                                    <div class="example-preview source-code" data-hl="html">
+                                        <div class="form-group">
+                                            <label for="input-url3">Timezone</label>
+                                            <input type="text"
+                                                class="form-control"
+                                                placeholder="Timezone"
+                                                id="input-url3"
+                                                data-filter="https://iqbalfn.com/timezone/?q=#QUERY#">
+                                        </div>
+
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', e => {
+                                                $('#input-url3').autocomplete({
+                                                    onItemRendered(el, item) {
+                                                        console.log('option', item)
+                                                    }
+                                                })
+                                                $('#input-url3').on('itemrender.bs.autocomplete', e => {
+                                                    let item = e.item
+                                                    console.log('event', item)
+                                                })
+                                            }, false);
+                                        </script>
+                                    </div>
+                                </div>
+                            </article>
+                        </section>
+
+                        <section>
+                            <h3>Pick Item</h3>
+                            <article>
+                                <p>Right after user pick an option, event `pick.bs.autocomplete` will be called that get two parameters, element, and picked element.</p>
+                                <div class="example">
+                                    <div class="example-preview source-code" data-hl="html">
+                                        <div class="form-group">
+                                            <label for="input-url4">Timezone</label>
+                                            <input type="text"
+                                                class="form-control"
+                                                placeholder="Timezone"
+                                                id="input-url4"
+                                                data-filter="https://iqbalfn.com/timezone/?q=#QUERY#">
+                                        </div>
+
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', e => {
+                                                $('#input-url4').autocomplete({
+                                                    onPick(el, item) {
+                                                        console.log('option', item)
+                                                    }
+                                                })
+                                                $('#input-url4').on('pick.bs.autocomplete', e => {
+                                                    let item = e.item
+                                                    console.log('event', item)
+                                                })
                                             }, false);
                                         </script>
                                     </div>
@@ -264,6 +331,18 @@
                                     <td>Total result to show on dropdown list.</td>
                                 </tr>
                                 <tr>
+                                    <td>onPick</td>
+                                    <td>function</td>
+                                    <td>null</td>
+                                    <td>Function to call after user picking the dropdown item. <code>onPick(input, item)</code></td>
+                                </tr>
+                                <tr>
+                                    <td>onItemRendered</td>
+                                    <td>function</td>
+                                    <td>null</td>
+                                    <td>Function to call right after item element rendered. <code>onItemRendered(input, item)</code>.</td>
+                                </tr>
+                                <tr>
                                     <td>preProcess</td>
                                     <td>function</td>
                                     <td>null</td>
@@ -271,6 +350,40 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </article>
+                </section>
+
+                <section>
+                    <h3>Events</h3>
+                    <article>
+                        <p>Bootstrap autocomplete exposes a few events for hooking into suggestion functionality. All sugggestions events are fired at the input element itself.</p>
+
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr><th>Event Type</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>pick.bs.autocomplete</td>
+                                    <td>This event fires immediately when user selecting any of suggestions option item.</td>
+                                </tr>
+                                <tr>
+                                    <td>itemrender.bs.autocomplete</td>
+                                    <td>An event that called right after suggestion item already rendered and is on view.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="example">
+                            <div class="example-preview source-code no-html" data-hl="js">
+                                $('#input-url').on('pick.bs.autocomplete', function(el, item){
+                                    // ...
+                                })
+                                $('#input-url').on('itemrender.bs.autocomplete', function(el, item){
+                                    // ...
+                                })
+                            </div>
+                        </div>
                     </article>
                 </section>
 

@@ -1,6 +1,6 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap Autocomplete (v0.1.0): autocomplete.js
+ * Bootstrap Autocomplete (v0.2.0): autocomplete.js
  * Licensed under MIT (https://github.com/iqbalfn/bootstrap-autocomplete/blob/master/LICENSE)
  * --------------------------------------------------------------------------
  */
@@ -15,7 +15,7 @@ import Util from './util'
  */
 
 const NAME               = 'autocomplete'
-const VERSION            = '0.1.0'
+const VERSION            = '0.2.0'
 const DATA_KEY           = 'bs.autocomplete'
 const EVENT_KEY          = `.${DATA_KEY}`
 const DATA_API_KEY       = '.data-api'
@@ -33,6 +33,9 @@ const Default = {
 
     maxResult       : 10,
 
+    onPick          : null,
+    onItemRendered  : null,
+
     preProcess      : null
 }
 
@@ -48,7 +51,10 @@ const DefaultType = {
 
     maxResult       : 'number',
 
-    preProcess      : '(null|function)'
+    preProcess      : '(null|function)',
+
+    onPick          : '(null|function)',
+    onItemRendered  : '(null|function)'
 }
 
 const Event = {
@@ -56,6 +62,9 @@ const Event = {
     CLICK_DATA_API      : `click${EVENT_KEY}${DATA_API_KEY}`,
     KEYDOWN_DATA_API    : `keydown${EVENT_KEY}${DATA_API_KEY}`,
     INPUT_DATA_API      : `input${EVENT_KEY}${DATA_API_KEY}`,
+
+    PICK                : `pick${EVENT_KEY}`,
+    ITEM_RENDER         : `itemrender${EVENT_KEY}`
 }
 
 const ClassName = {
@@ -186,21 +195,21 @@ class Autocomplete {
                     this._focusPrev()
                     prevent = true
                     break;
-                
+
                 case KeyCode.ENTER:
                     if(this._isShown){
-                        let focus = $(this._dropdown).children('.active').get(0)
-                        if(!focus)
-                            focus = $(this._dropdown).children(':first-child').get(0)
+                        let item = $(this._dropdown).children('.active').get(0)
+                        if(!item)
+                            item = $(this._dropdown).children(':first-child').get(0)
 
-                        if(focus)
-                            this._element.value = focus.innerText
+                        if(item)
+                            this._selectItem(item)
 
                         this.hide()
                         prevent = true
                     }
                     break;
-                
+
                 case KeyCode.ESCAPE:
                     prevent = true
                     this.hide()
@@ -310,7 +319,7 @@ class Autocomplete {
                     let val = i.toLowerCase()
                     if(this._items.includes(val))
                         return
-                    
+
                     this._items.push(val)
                     this._labels[val] = i
 
@@ -447,17 +456,36 @@ class Autocomplete {
             if(this._dropdown.children.length >= this._config.maxResult)
                 return
 
-            $('<a class="dropdown-item" href="#"></a>')
-                .text(i)
-                .appendTo(this._dropdown)
-                .on(Event.CLICK_DATA_API, e => {
-                    this._preventClose = true
-                    this._element.value = e.target.innerText
-                    this.hide()
-                    e.preventDefault()
-                    this._preventClose = false
-                })
+            let item = $('<a class="dropdown-item" href="#"></a>')
+            let itemEl = item.get(0)
+
+            item.text(i).appendTo(this._dropdown)
+
+            if(this._config.onItemRendered)
+                this._config.onItemRendered(this._element, itemEl)
+
+            const renderEvent = $.Event(Event.ITEM_RENDER, {item:itemEl})
+
+            $(this._element).trigger(renderEvent)
+
+            item.on(Event.CLICK_DATA_API, e => {
+                this._selectItem(e.target);
+                this._preventClose  = true
+                this.hide()
+                e.preventDefault()
+                this._preventClose = false
+            })
         })
+    }
+
+    _selectItem(item){
+        this._element.value = item.innerText
+
+        if(this._config.onPick)
+            this._config.onPick(this._element, item)
+
+        const pickEvent = $.Event(Event.PICK, {item})
+        $(this._element).trigger(pickEvent)
     }
 
     _showDropdown(){

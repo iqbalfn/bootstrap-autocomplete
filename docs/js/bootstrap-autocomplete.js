@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap Autocomplete v0.1.1 (https://iqbalfn.github.io/bootstrap-autocomplete/)
+  * Bootstrap Autocomplete v0.2.0 (https://iqbalfn.github.io/bootstrap-autocomplete/)
   * Copyright 2019 Iqbal Fauzi
   * Licensed under MIT (https://github.com/iqbalfn/bootstrap-autocomplete/blob/master/LICENSE)
   */
@@ -9,7 +9,7 @@
   (global = global || self, factory(global['bootstrap-autocomplete'] = {}, global.jQuery));
 }(this, (function (exports, $) { 'use strict';
 
-  $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
+  $ = $ && Object.prototype.hasOwnProperty.call($, 'default') ? $['default'] : $;
 
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
@@ -44,7 +44,7 @@
 
   function _objectSpread(target) {
     for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i] != null ? arguments[i] : {};
+      var source = arguments[i] != null ? Object(arguments[i]) : {};
       var ownKeys = Object.keys(source);
 
       if (typeof Object.getOwnPropertySymbols === 'function') {
@@ -223,7 +223,7 @@
    */
 
   var NAME = 'autocomplete';
-  var VERSION = '0.1.0';
+  var VERSION = '0.2.0';
   var DATA_KEY = 'bs.autocomplete';
   var EVENT_KEY = "." + DATA_KEY;
   var DATA_API_KEY = '.data-api';
@@ -236,6 +236,8 @@
     filterMinChars: 1,
     filterRelation: null,
     maxResult: 10,
+    onPick: null,
+    onItemRendered: null,
     preProcess: null
   };
   var DefaultType = {
@@ -246,13 +248,17 @@
     filterMinChars: 'number',
     filterRelation: '(null|object)',
     maxResult: 'number',
-    preProcess: '(null|function)'
+    preProcess: '(null|function)',
+    onPick: '(null|function)',
+    onItemRendered: '(null|function)'
   };
   var Event = {
     BLUR_DATA_API: "blur" + EVENT_KEY + DATA_API_KEY,
     CLICK_DATA_API: "click" + EVENT_KEY + DATA_API_KEY,
     KEYDOWN_DATA_API: "keydown" + EVENT_KEY + DATA_API_KEY,
-    INPUT_DATA_API: "input" + EVENT_KEY + DATA_API_KEY
+    INPUT_DATA_API: "input" + EVENT_KEY + DATA_API_KEY,
+    PICK: "pick" + EVENT_KEY,
+    ITEM_RENDER: "itemrender" + EVENT_KEY
   };
   var KeyCode = {
     ARROW_DOWN: 40,
@@ -266,9 +272,7 @@
    * ------------------------------------------------------------------------
    */
 
-  var Autocomplete =
-  /*#__PURE__*/
-  function () {
+  var Autocomplete = /*#__PURE__*/function () {
     function Autocomplete(element, config) {
       this._config = this._getConfig(config);
       this._element = element;
@@ -366,9 +370,9 @@
 
           case KeyCode.ENTER:
             if (_this._isShown) {
-              var focus = $(_this._dropdown).children('.active').get(0);
-              if (!focus) focus = $(_this._dropdown).children(':first-child').get(0);
-              if (focus) _this._element.value = focus.innerText;
+              var item = $(_this._dropdown).children('.active').get(0);
+              if (!item) item = $(_this._dropdown).children(':first-child').get(0);
+              if (item) _this._selectItem(item);
 
               _this.hide();
 
@@ -605,9 +609,18 @@
 
       items.forEach(function (i) {
         if (_this6._dropdown.children.length >= _this6._config.maxResult) return;
-        $('<a class="dropdown-item" href="#"></a>').text(i).appendTo(_this6._dropdown).on(Event.CLICK_DATA_API, function (e) {
+        var item = $('<a class="dropdown-item" href="#"></a>');
+        var itemEl = item.get(0);
+        item.text(i).appendTo(_this6._dropdown);
+        if (_this6._config.onItemRendered) _this6._config.onItemRendered(_this6._element, itemEl);
+        var renderEvent = $.Event(Event.ITEM_RENDER, {
+          item: itemEl
+        });
+        $(_this6._element).trigger(renderEvent);
+        item.on(Event.CLICK_DATA_API, function (e) {
+          _this6._selectItem(e.target);
+
           _this6._preventClose = true;
-          _this6._element.value = e.target.innerText;
 
           _this6.hide();
 
@@ -615,6 +628,15 @@
           _this6._preventClose = false;
         });
       });
+    };
+
+    _proto._selectItem = function _selectItem(item) {
+      this._element.value = item.innerText;
+      if (this._config.onPick) this._config.onPick(this._element, item);
+      var pickEvent = $.Event(Event.PICK, {
+        item: item
+      });
+      $(this._element).trigger(pickEvent);
     };
 
     _proto._showDropdown = function _showDropdown() {
