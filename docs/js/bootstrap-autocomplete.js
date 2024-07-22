@@ -455,6 +455,7 @@
 
       if (!this._config.filter) return;
       if (this._dropdown.children.length >= this._config.maxResult) return;
+      if (this._query.length < this._config.filterMinChars) return;
       if (this._timer) clearTimeout(this._timer);
       var vval = this._query;
       this._timer = setTimeout(function () {
