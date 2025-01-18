@@ -423,7 +423,7 @@
             var val = o.innerHTML.toLowerCase();
             if (_this2._items.includes(val)) return;
 
-            _this2._items.push(val);
+            _this2._items.push({"value":o.value,"text":val});
 
             _this2._labels[val] = o.innerHTML;
           });
@@ -508,12 +508,12 @@
       var local = [];
 
       this._items.forEach(function (i) {
-        if (!i.includes(_this4._query)) return;
-        var label = _this4._labels[i];
+        if (!i["text"].includes(_this4._query)) return;
+        var label = _this4._labels[i["text"]];
         if (_this4._result.includes(label)) return;
-        local.push(label);
+        local.push({"value":i["value"],"text":label});
 
-        _this4._result.push(label);
+        _this4._result.push({"value":i["value"],"text":label});
       }); // now render the result
 
 
@@ -610,9 +610,9 @@
 
       items.forEach(function (i) {
         if (_this6._dropdown.children.length >= _this6._config.maxResult) return;
-        var item = $('<a class="dropdown-item" href="#"></a>');
+        var item = $('<a class="dropdown-item" href="#"></a>').attr("value",i["value"]);
         var itemEl = item.get(0);
-        item.text(i).appendTo(_this6._dropdown);
+        item.text(i["text"]).appendTo(_this6._dropdown);
         if (_this6._config.onItemRendered) _this6._config.onItemRendered(_this6._element, itemEl);
         var renderEvent = $.Event(Event.ITEM_RENDER, {
           item: itemEl
